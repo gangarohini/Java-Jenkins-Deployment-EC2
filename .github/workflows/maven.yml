@@ -1,0 +1,55 @@
+name: Build
+
+on:
+  push: 
+    branches: [ "master" ]
+    
+jobs:
+    build:
+      name: Build a Java application with Maven
+      runs-on: ${{ matrix.os }}
+      strategy:
+        matrix:
+          os: [ubuntu-latest]
+          
+      steps:
+        - name: Checking out the code
+          uses: actions/checkout@v4
+        
+        - name: Setup JDK 17 for x6
+          uses: actions/setup-java@v3
+          with: 
+            distribution: 'corretto'
+            java-version: '17' 
+            cache : maven
+
+        - name: Unit Tests
+          run: mvn -B test --file pom.xml
+
+        - name: Build with Maven
+          run: mvn -B package --file pom.xml
+
+        - name: Print if Build is a success
+          run: echo "Build succeded"
+
+        - name: Build Docker Image
+          uses: docker/build-push-action@v2
+          with:
+            context: .
+            dockerfile: Dockerfile
+            push: false
+            tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cab-denmark:latest
+
+        - name: Login to Docker Hub
+          uses: docker/login-action@v1
+          with:
+              username: ${{ secrets.DOCKER_HUB_USERNAME }}
+              password: ${{ secrets.DOCKERHUB_ACCESSTOKEN }}
+
+        - name: Push to DockerHub
+          uses: docker/build-push-action@v2
+          with:
+            context: .
+            dockerfile: Dockerfile
+            push: true
+            tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cab-denmark:latest
