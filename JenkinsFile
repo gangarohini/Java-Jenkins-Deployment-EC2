@@ -6,11 +6,7 @@ node(){
 		checkout changelog: false, poll: false, scm: scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'GitHubCreds', url: 'https://github.com/gangarohini/Java-Jenkins-Deployment-EC2']])
 	}
 	stage('Build Automation'){
-		sh "
-			mvn clean install -Dmaven.test.skip=true
-			
-
-		"
+		sh "mvn clean install -Dmaven.test.skip=true"
 	}
 	
 	//stage('Code Scan'){
