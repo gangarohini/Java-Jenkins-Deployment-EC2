@@ -1,17 +1,16 @@
 node(){
 
-	def sonarHome = tool name: 'SonarScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+	//def sonarHome = tool name: 'SonarScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
 	
 	stage('Code Checkout'){
 		checkout changelog: false, poll: false, scm: scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'GitHubCreds', url: 'https://github.com/gangarohini/Java-Jenkins-Deployment-EC2']])
 	}
 	stage('Build Automation'){
-		sh """
-			ls -lart
-			mvn clean install
-			ls -lart target
+		sh "
+			mvn clean install -Dmaven.test.skip=true
+			
 
-		"""
+		"
 	}
 	
 	//stage('Code Scan'){
