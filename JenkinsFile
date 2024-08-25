@@ -1,25 +1,21 @@
-node(){
-
-	//def sonarHome = tool name: 'SonarScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-	
-	stage('Code Checkout'){
-		checkout changelog: false, poll: false, scm: scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'GitHubCreds', url: 'https://github.com/gangarohini/Java-Jenkins-Deployment-EC2']])
-	}
-	stage('Build Automation'){
-		sh "mvn clean install -Dmaven.test.skip=true"
-	}
-	
-	//stage('Code Scan'){
-	//	withSonarQubeEnv(credentialsId: 'SonarQubeCreds') {
-	//		sh "${sonarHome}/bin/sonar-scanner"
-	//	}
-		
-	//}
-	//stage('Code Coverage ') {
-	    //sh "curl -o coverage.json 'http://35.154.151.174:9000/sonar/api/measures/component?componentKey=com.java.example:java-example&metricKeys=coverage';sonarCoverage=`jq '.component.measures[].value' coverage.json`;if [ 1 -eq '\$(echo '\${sonarCoverage} >= 50'| bc)' ]; then echo 'Failed' ;exit 1;else echo 'Passed'; fi"
-	//}
-	
-	//stage('Code Deployment'){
-		//deploy adapters: [tomcat9(credentialsId: 'TomcatCreds', path: '', url: 'http://98.130.11.55:8080/')], contextPath: 'Planview', onFailure: false, war: 'target/*.war'
-	//}
-}
+pipeline{
+    agent any
+    tools{
+        maven "Maven 3.9"
+    }
+    stages{
+        stage('Build Maven'){
+            steps{
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'GitHubCreds', url: 'https://github.com/gangarohini/Java-Jenkins-Deployment-EC2.git']])
+                bat "mvn -Dmaven.test.failure.ignore=true clean package"
+            }
+        }
+        stage('Build Docker Image'){
+            steps{
+                script{
+                    bat 'docker build -t rohiniganga/docker-jenkins .'
+                }
+            }
+        }
+        }
+    }
