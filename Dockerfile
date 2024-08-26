@@ -1,5 +1,4 @@
 FROM openjdk:17
-WORKDIR /app
-COPY ${JAR_FILE} app.jar
+COPY target/*.jar /
 EXPOSE 8080
-CMD ["java", "-jar", "demo-0.0.1-SNAPSHOT.jar"]gt 
+ENTRYPOINT ["java", "-jar", "demo-0.0.1-SNAPSHOT.jar"]
