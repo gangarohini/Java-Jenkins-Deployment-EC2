@@ -19,7 +19,7 @@ environment{
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t rohiniganga/docker-jenkins .'
+                bat 'docker build -t rohiniganga/docker-jenkins .'
             }
         }
 
