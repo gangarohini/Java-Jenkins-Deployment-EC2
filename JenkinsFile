@@ -17,11 +17,11 @@ environment{
             }
         }
 
-        //stage('Build Docker Image') {
-         //   steps {
-         //       sh 'docker build -t rohiniganga/docker-jenkins .'
-         //   }
-      //  }
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t rohiniganga/docker-jenkins .'
+            }
+        }
 
         //stage('Push Docker Image') {
            // steps {
