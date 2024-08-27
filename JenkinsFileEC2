@@ -27,19 +27,19 @@
         stage('Push Docker Image') {
             steps {
                 withCredentials([string(credentialsId: 'DockerHubCreds', variable: 'DockerHub')]) {
-                    sh 'docker login -u rohiniganga -p ${DockerHub}'
-                  //  sh "docker push registry.hub.docker.com/rohiniganga/docker-jenkins:latest"
+                    sh "docker login -u rohiniganga -p ${DockerHub}"
+                   sh "docker push rohiniganga/docker-jenkins:latest"
                 }
             }
       }
 
-       // stage('Deploy to Docker') {
-           // steps {
-              //  sh 'docker stop docker-jenkins || true'
-             //   sh 'docker rm docker-jenkins || true'
-              //  sh 'docker run -d --name your-docker-container-name your-docker-image-name:latest'
-         //   }
-      //  }
+       stage('Deploy to Docker') {
+            steps {
+                sh 'docker stop docker-jenkins || true'
+                sh 'docker rm docker-jenkins || true'
+                sh 'docker run -d --name rohiniganga docker-jenkins:latest'
+            }
+       }
     }
 }
 
