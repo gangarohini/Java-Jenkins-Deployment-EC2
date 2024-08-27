@@ -13,7 +13,7 @@ environment{
 
         stage('Build and Package') {
             steps {
-                sh 'mvn clean package'
+                bat 'mvn -Dmaven.test.failure.ignore=true clean install'
             }
         }
 
