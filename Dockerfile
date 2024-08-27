@@ -1,6 +1,6 @@
 FROM openjdk:17
-RUN mkdir -p opt/app
-WORKDIR /opt/app
-COPY target/*.jar app.jar
+RUN mkdir -p /app
+WORKDIR /app
+COPY target/*.jar /app/
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/"]
