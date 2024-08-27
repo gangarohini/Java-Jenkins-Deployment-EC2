@@ -23,14 +23,14 @@ environment{
             }
         }
 
-        //stage('Push Docker Image') {
-           // steps {
-             //   withCredentials([usernamePassword(credentialsId: 'rohiniganga', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-             //       sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} registry.hub.docker.com/rohiniganga"
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'rohiniganga', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                //    sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} registry.hub.docker.com/rohiniganga"
               //      sh "docker push registry.hub.docker.com/rohiniganga/docker-jenkins:latest"
-            //    }
-          //  }
-      //  }
+                }
+            }
+      }
 
        // stage('Deploy to Docker') {
            // steps {
