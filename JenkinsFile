@@ -1,14 +1,44 @@
-pipeline{
+    pipeline {
     agent any
-    tools{
-        maven "Maven 3.9"
-    }
-    stages{
-        stage('Build Maven'){
-            steps{
-                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'GithubCreds', url: 'https://github.com/gangarohini/Java-Jenkins-Deployment-EC2.git']])
-                sh "mvn -Dmaven.test.failure.ignore=true clean package"
+environment{
+    DOCKER_USERNAME='rohiniganga'
+    DOCKER_PASSWORD='Chaitrika@2011'
+}
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git 'https://github.com/gangarohini/Java-Jenkins-Deployment-EC2'
             }
         }
+
+        stage('Build and Package') {
+            steps {
+                sh 'mvn clean package'
+            }
         }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t rohiniganga/docker-jenkins .'
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'rohiniganga', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} registry.hub.docker.com/rohiniganga"
+                    sh "docker push registry.hub.docker.com/rohiniganga/docker-jenkins:latest"
+                }
+            }
+        }
+
+       // stage('Deploy to Docker') {
+           // steps {
+              //  sh 'docker stop docker-jenkins || true'
+             //   sh 'docker rm docker-jenkins || true'
+              //  sh 'docker run -d --name your-docker-container-name your-docker-image-name:latest'
+         //   }
+      //  }
     }
+}
+
