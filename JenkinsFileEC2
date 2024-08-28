@@ -1,45 +1,59 @@
-    pipeline {
-    agent {
-        docker {
-      image 'abhishekf5/maven-abhishek-docker-agent:v1'
-      args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
-    }
-    }
-    stages {
-        stage('Clone Repository') {
-            steps {
-                git 'https://github.com/gangarohini/Java-Jenkins-Deployment-EC2'
+def receiver_container
+pipeline{
+   agent any
+   //{
+     //   docker {
+      //image 'abhishekf5/maven-abhishek-docker-agent:v1'
+      //args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
+     //}
+    //}
+    
+    stages{
+        stage('Clone Repository'){
+            steps{
+            checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'GitHubCreds', url: 'https://github.com/gangarohini/Java-Jenkins-Deployment-EC2']])
             }
         }
-
-        stage('Build and Package') {
-            steps {
-                sh 'mvn -Dmaven.test.failure.ignore=true clean package'
+        stage('Build and Package'){
+        steps{
+             sh 'mvn -Dmaven.test.failure.ignore=true clean package'
             }
         }
-
-        stage('Build Docker Image') {
-            steps {
-                sh 'docker build -t rohiniganga/docker-jenkins .'
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                withCredentials([string(credentialsId: 'DockerHubCreds', variable: 'DockerHub')]) {
-                    sh "docker login -u rohiniganga -p ${DockerHub}"
-                   sh "docker push rohiniganga/docker-jenkins:latest"
+        stage('Build Docker Image'){
+            steps{
+                script{
+                    sh 'docker build -t rohiniganga/docker-jenkins-pipeline .'
                 }
             }
-      }
-
-       stage('Deploy to Docker') {
-            steps {
-                sh 'docker stop docker-jenkins || true'
-                sh 'docker rm docker-jenkins || true'
-                sh 'docker run -d --name rohiniganga docker-jenkins:latest'
+        }
+        stage('Push Docker Image'){
+            steps{
+              withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'Docker_Password', usernameVariable: 'Docker_Username')]){
+                    sh "docker login -u ${Docker_Username} -p ${Docker_Password}"
+                   sh 'docker push rohiniganga/docker-jenkins-pipeline:latest'
+                }
             }
-       }
+        }
+         stage('Clean docker containers'){
+            steps{
+                script{
+                
+                    //def doc_containers = bat(returnStdout: true, script: 'docker container ps -aq').replaceAll("\n", " ") 
+                  def doc_containers=sh 'docker ps -a -q -f name=JavaAppTest'
+                 // echo doc_containers
+                    if (doc_containers!='') {
+                        sh 'docker stop JavaAppTest && docker rm JavaAppTest'
+                    }
+                }
+            }
+        }
+        stage('Deploy to Docker') {
+            steps {
+         sh 'docker run -d -p 50500:80 --name JavaAppTest --hostname TestServer rohiniganga/docker-jenkins-pipeline:latest'
+           //     bat 'docker stop rohiniganga/docker-jenkins-pipeline || true'
+             //   bat 'docker rm docker-jenkins-pipeline || true'
+               // bat 'docker run -d -p 5050 --name localhost:5050/rohiniganga/docker-jenkins-pipeline:latest'
+            }
+      }
     }
 }
-
