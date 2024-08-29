@@ -11,7 +11,7 @@ pipeline{
     stages{
         stage('Clone Repository'){
             steps{
-            checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'GitHubCreds', url: 'https://github.com/gangarohini/Java-Jenkins-Deployment-EC2']])
+            checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: '   ', url: 'https://github.com/gangarohini/Java-Jenkins-Deployment-EC2']])
             }
         }
         stage('Build and Package'){

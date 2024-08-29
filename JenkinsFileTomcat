@@ -1,0 +1,27 @@
+pipeline{
+   agent any
+    stages{
+        stage('Clone Repository'){
+            steps{
+            checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'GitHubCreds', url: 'https://github.com/gangarohini/Java-Jenkins-Deployment-EC2']])
+            }
+        }
+        stage('Build and Package'){
+        steps{
+             bat 'mvn -Dmaven.test.failure.ignore=true clean package'
+            }
+        }
+        stage('Archive Artifact'){
+        steps{
+            archiveArtifacts artifacts:'target/*.war'
+            }
+        }
+        stage('Deployment'){
+            steps{
+               deploy adapters: [tomcat9(credentialsId: 'TomcatCreds', path: '', url: 'http://65.0.134.109:8080/')], onFailure: false, war: 'target/*.war'
+            }
+        }
+        
+        
+    }
+}
